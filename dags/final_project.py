@@ -104,6 +104,18 @@ def final_project():
 
     run_quality_checks = DataQualityOperator(
         task_id='Run_data_quality_checks',
+        redshift_conn_id="aws_redshift",
+        rule_list=[
+            {"id": "1", "type": "checksum", "exp_result": "", "query": "SELECT COUNT(1) FROM songplays"},
+            {"id": "2", "type": "checksum", "exp_result": "", "query": "SELECT COUNT(1) FROM songs"},
+            {"id": "3", "type": "checksum", "exp_result": "", "query": "SELECT COUNT(1) FROM artists"},
+            {"id": "4", "type": "checksum", "exp_result": "", "query": "SELECT COUNT(1) FROM users"},
+            {"id": "5", "type": "checksum", "exp_result": "", "query": "SELECT COUNT(1) FROM artists"},
+            {"id": "6", "type": "condition", "exp_result": "0", "query": "SELECT COUNT(1) FROM songplays WHERE start_time IS NULL"},
+            {"id": "7", "type": "condition", "exp_result": "0", "query": "SELECT COUNT(1) FROM songs WHERE artistid IS NULL"},
+            {"id": "8", "type": "condition", "exp_result": "2", "query": "SELECT COUNT(DISTINCT level) FROM users"},
+            {"id": "9", "type": "condition", "exp_result": "18", "query": "select distinct length(artistid) from artists"}
+            ]
     )
 
     end_operator = DummyOperator(task_id='End_execution')
