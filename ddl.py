@@ -66,18 +66,17 @@ CREATE_STAGING_EVENTS_SQL = ("""CREATE TABLE public.staging_events (
 	userid int4
 );""")
 
-
 CREATE_STAGING_SONGS_SQL = ("""CREATE TABLE public.staging_songs (
-	num_songs int4,
-	artist_id varchar(256),
-	artist_name varchar(512),
-	artist_latitude numeric(18,0),
-	artist_longitude numeric(18,0),
-	artist_location varchar(512),
 	song_id varchar(256),
-	title varchar(512),
+    num_songs int4,
+    title varchar(512),
+	artist_name varchar(512),
+    artist_latitude numeric(18,0),
+    "year" int4,
 	duration numeric(18,0),
-	"year" int4
+    artist_id varchar(256),
+	artist_longitude numeric(18,0),
+	artist_location varchar(512)
 );""")
 
 
@@ -101,3 +100,20 @@ CREATE_TABLE_USERS_SQL = ("""CREATE TABLE public.users (
 	"level" varchar(256),
 	CONSTRAINT users_pkey PRIMARY KEY (userid)
 );""")
+
+create_table_queries = [CREATE_STAGING_EVENTS_SQL, 
+                        CREATE_STAGING_SONGS_SQL, 
+                        CREATE_TABLE_SONGPLAYS_SQL, 
+                        CREATE_TABLE_ARTISTS_SQL, 
+                        CREATE_TABLE_SONGS_SQL, 
+                        CREATE_TABLE_USERS_SQL, 
+                        CREATE_TABLE_TIME_SQL]
+
+drop_table_queries = [DROP_STAGING_EVENTS_SQL,
+                      DROP_STAGING_SONGS_SQL,
+                      DROP_TABLE_SONGPLAYS_SQL,
+                      DROP_TABLE_ARTISTS_SQL,
+                      DROP_TABLE_SONGS_SQL,
+                      DROP_TABLE_USERS_SQL,
+                      DROP_TABLE_TIME_SQL
+					  ]

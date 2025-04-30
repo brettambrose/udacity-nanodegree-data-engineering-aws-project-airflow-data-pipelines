@@ -8,8 +8,6 @@ from operators import (StageToRedshiftOperator, LoadFactOperator,
                        LoadDimensionOperator, DataQualityOperator)
 from helpers import SqlQueries
 
-from udacity.common import sql_statements
-
 """
 Default Args - if passed to a DAG, it will apply
  default_args to any operator as long as 
@@ -40,90 +38,6 @@ default_args = {
 def final_project():
 
     start_operator = DummyOperator(task_id='Begin_execution')
-
-    drop_staging_events = PostgresOperator(
-        task_id="drop_staging_events",
-        postgres_conn_id="aws_redshift",
-        sql=sql_statements.DROP_STAGING_EVENTS_SQL
-    )
-
-    drop_staging_songs = PostgresOperator(
-        task_id="drop_staging_songs",
-        postgres_conn_id="aws_redshift",
-        sql=sql_statements.DROP_STAGING_SONGS_SQL
-    )
-
-    drop_table_artists = PostgresOperator(
-        task_id="drop_table_artists",
-        postgres_conn_id="aws_redshift",
-        sql=sql_statements.DROP_TABLE_ARTISTS_SQL
-    )
-
-    drop_table_songplays = PostgresOperator(
-        task_id="drop_table_songplays",
-        postgres_conn_id="aws_redshift",
-        sql=sql_statements.DROP_TABLE_SONGPLAYS_SQL
-    )
-
-    drop_table_songs = PostgresOperator(
-        task_id="drop_table_songs",
-        postgres_conn_id="aws_redshift",
-        sql=sql_statements.DROP_TABLE_SONGS_SQL
-    )
-
-    drop_table_time = PostgresOperator(
-        task_id="drop_table_time",
-        postgres_conn_id="aws_redshift",
-        sql=sql_statements.DROP_TABLE_TIME_SQL
-    )
-
-    drop_table_users = PostgresOperator(
-        task_id="drop_table_users",
-        postgres_conn_id="aws_redshift",
-        sql=sql_statements.DROP_TABLE_USERS_SQL
-    )
-
-    create_staging_events = PostgresOperator(
-        task_id="create_staging_events",
-        postgres_conn_id="aws_redshift",
-        sql=sql_statements.CREATE_STAGING_EVENTS_SQL
-    )
-
-    create_staging_songs = PostgresOperator(
-        task_id="create_staging_songs",
-        postgres_conn_id="aws_redshift",
-        sql=sql_statements.CREATE_STAGING_SONGS_SQL
-    )
-
-    create_table_artists = PostgresOperator(
-        task_id="create_table_artists",
-        postgres_conn_id="aws_redshift",
-        sql=sql_statements.CREATE_TABLE_ARTISTS_SQL
-    )
-
-    create_table_songplays = PostgresOperator(
-        task_id="create_table_songplays",
-        postgres_conn_id="aws_redshift",
-        sql=sql_statements.CREATE_TABLE_SONGPLAYS_SQL
-    )
-
-    create_table_songs = PostgresOperator(
-        task_id="create_table_songs",
-        postgres_conn_id="aws_redshift",
-        sql=sql_statements.CREATE_TABLE_SONGS_SQL
-    )
-
-    create_table_time = PostgresOperator(
-        task_id="create_table_time",
-        postgres_conn_id="aws_redshift",
-        sql=sql_statements.CREATE_TABLE_TIME_SQL
-    )
-
-    create_table_users = PostgresOperator(
-        task_id="create_table_users",
-        postgres_conn_id="aws_redshift",
-        sql=sql_statements.CREATE_TABLE_USERS_SQL
-    )
 
     stage_events_to_redshift = StageToRedshiftOperator(
         task_id='Stage_events',
@@ -194,16 +108,9 @@ def final_project():
 
     end_operator = DummyOperator(task_id='End_execution')
 
-    start_operator >> [drop_staging_events, drop_staging_songs, drop_table_artists, drop_table_songplays, drop_table_songs, drop_table_users, drop_table_time]
-    drop_staging_events >> create_staging_events >> stage_events_to_redshift
-    drop_staging_songs >> create_staging_songs >> stage_songs_to_redshift
-    drop_table_songplays >> create_table_songplays >> load_songplays_table
+    start_operator >> [stage_events_to_redshift, stage_songs_to_redshift]
     load_songplays_table << [stage_events_to_redshift, stage_songs_to_redshift]
     load_songplays_table >> [load_artist_dimension_table, load_song_dimension_table, load_user_dimension_table, load_time_dimension_table]
-    drop_table_artists >> create_table_artists >> load_artist_dimension_table
-    drop_table_songs >> create_table_songs >> load_song_dimension_table
-    drop_table_users >> create_table_users >> load_user_dimension_table
-    drop_table_time >> create_table_time >> load_time_dimension_table
     run_quality_checks << [load_songplays_table, load_artist_dimension_table, load_song_dimension_table, load_user_dimension_table, load_time_dimension_table]
     run_quality_checks >> end_operator
 
