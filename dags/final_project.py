@@ -45,7 +45,7 @@ def final_project():
         redshift_conn_id="aws_redshift",
         aws_credentials_id="aws_credentials",
         s3_bucket="udacity-dend",
-        s3_key="log_data",
+        s3_key="log-data",
         region="us-west-2",
         file_format="JSON",
         format_spec="s3://udacity-dend/log_json_path.json"
@@ -57,7 +57,7 @@ def final_project():
         redshift_conn_id="aws_redshift",
         aws_credentials_id="aws_credentials",
         s3_bucket="udacity-dend",
-        s3_key="song-data",
+        s3_key="song_data/A/A",
         region="us-west-2",
         file_format="JSON",
         format_spec="auto"
@@ -73,7 +73,7 @@ def final_project():
     load_user_dimension_table = LoadDimensionOperator(
         task_id='Load_user_dim_table',
         redshift_conn_id="aws_redshift",
-        table="songplays",
+        table="users",
         sql=SqlQueries.user_table_insert,
         opt_truncate=True
     )
@@ -81,7 +81,7 @@ def final_project():
     load_song_dimension_table = LoadDimensionOperator(
         task_id='Load_song_dim_table',
         redshift_conn_id="aws_redshift",
-        table="songplays",
+        table="songs",
         sql=SqlQueries.song_table_insert,
         opt_truncate=True
     )
@@ -89,7 +89,7 @@ def final_project():
     load_artist_dimension_table = LoadDimensionOperator(
         task_id='Load_artist_dim_table',
         redshift_conn_id="aws_redshift",
-        table="songplays",
+        table="artists",
         sql=SqlQueries.artist_table_insert,
         opt_truncate=True
     )
@@ -97,7 +97,7 @@ def final_project():
     load_time_dimension_table = LoadDimensionOperator(
         task_id='Load_time_dim_table',
         redshift_conn_id="aws_redshift",
-        table="songplays",
+        table="time",
         sql=SqlQueries.time_table_insert,
         opt_truncate=True
     )
