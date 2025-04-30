@@ -25,10 +25,6 @@ DB_USER            = config.get("CLUSTER","DB_USER")
 DB_PASSWORD        = config.get("CLUSTER","DB_PASSWORD")
 DB_PORT            = config.get("CLUSTER","DB_PORT")
 
-# S3 Bucket
-S3_SRC_BUCKET_NAME = config.get("S3","S3_SRC_BUCKET_NAME")
-S3_TGT_BUCKET_NAME = config.get("S3","S3_TGT_BUCKET_NAME")
-
 print("*******************************************************************")
 print("Establishing boto3 resources and clients")
 
@@ -48,25 +44,6 @@ ec2 = boto3.resource('ec2',
                      aws_secret_access_key=SECRET,
                      region_name='us-east-1'
                      )
-
-
-s3_client = boto3.client("s3",
-                         region_name="us-east-1",
-                         aws_access_key_id=KEY,
-                         aws_secret_access_key=SECRET
-                         )
-
-print("*********************")
-print("Creating S3 bucket...")
-
-try:
-    s3_client.create_bucket(
-        Bucket=S3_TGT_BUCKET_NAME
-    )
-
-except Exception as e:
-    print(e)
-
 
 print("**********************************************************")
 print("Creating IAM Role with permissions to use Redshift service")
@@ -114,6 +91,7 @@ try:
         #Roles (for s3 access)
         IamRoles=[ARN]
     )
+    
 except Exception as e:
     print(e)
 
