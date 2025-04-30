@@ -30,8 +30,9 @@ class StageToRedshiftOperator(BaseOperator):
     SECRET_ACCESS_KEY '{}'
     REGION '{}'
     {} '{}'
-    timeformat as 'epochmillisecs'
-"""
+    COMPUPDATE OFF
+    STATUPDATE OFF
+    """
 
     @apply_defaults
     def __init__(self,
