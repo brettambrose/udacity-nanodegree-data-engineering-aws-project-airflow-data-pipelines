@@ -54,14 +54,14 @@ Connection Type = "Amazon Web Services"
 
 ## Deploying AWS Infrastructure with IaC
 
-Run the [infra_deploy.py](/infra_deploy.py) to set up the following using boto3:
-1. Create a target S3 Bucket
-2. Copy datasets from source S3 to target S3
-3. Create the IAM Role for Redshift service
-4. Attach S3 full access policy to S3 role
-5. Create the Redshift cluster
-6. Configure VPC ingress rules
-7. Output the Cluster endpoint and IAM Role ARN
+1. Go to the [deploy](/deploy/) folder
+2. run the [infra_deploy.py](/deploy/infra_deploy.py) script, which will use boto3 to...
+    1. Create the IAM Role for Redshift service
+    2. Attach S3 full access policy to S3 role
+    3. Create the Redshift cluster
+    4. Configure VPC ingress rules
+    5. Output the Cluster endpoint and IAM Role ARN for use in th [Add HOST and ARN Variables to dwh.cfg](#add-host-and-arn-variables-to-dwhcfg) and [Add Redshift Connection to Airflow](#add-redshift-connection-to-airflow) steps
+3. run the [create_tables.py](/deploy/create_tables.py) script, which will create all tables in the DWH using the SQL statements in [ddl.py](/deploy/ddl.py)
 
 ### Add HOST and ARN Variables to dwh.cfg
 
@@ -78,25 +78,5 @@ Connection Type = "Amazon Redshift"
 Use the CLUSTER variables in [dwh.cfg](/dwh.cfg) to fill out the rest
 
 ![Airflow with HOST](/assets/2025-04-29%2000_05_33-Add%20Redshift%20Connection%20-%20Airflow.png)
-
-## Copy S3 Data to Target Bucket
-
-In the AWS CLI run the following commands
-
-First copy S3 source data to home cloudshell directory
-
-```bash
-aws s3 cp s3://udacity-dend/log-data/ ~/log-data/ --recursive
-aws s3 cp s3://udacity-dend/song-data/ ~/song-data/ --recursive
-aws s3 cp s3://udacity-dend/log_json_path.json ~/
-```
-
-Then copy from home cloudshell directory to the target S3 bucket
-
-```bash
-aws s3 cp ~/log-data/ s3://udacity-dend-ba-copy/log-data/ --recursive
-aws s3 cp ~/song-data/ s3://udacity-dend-ba-copy/song-data/ --recursive
-aws s3 cp ~/log_json_path.json s3://udacity-dend-ba-copy/
-```
 
 ## NEXT TO DO
