@@ -89,7 +89,10 @@ try:
         PubliclyAccessible=True,
         
         #Roles (for s3 access)
-        IamRoles=[ARN]
+        IamRoles=[ARN],
+
+        #VPC Routing
+        EnhancedVpcRouting=True
     )
     
 except Exception as e:
@@ -139,11 +142,9 @@ conn.close()
 
 print('Connected to Redshift!')
 
-print("*************************************************************")
-print("Use the following for HOST and ARN variables in DWH Config:\n")
-print("*************************************************************")
+print("***************************************************************")
+print("Use the following for HOST variables in DWH Config and Airflow:")
+print("***************************************************************")
 
 print("[CLUSTER]")
-print("HOST=" + HOST + "\n")
-print("[IAM_ROLE]")
-print("ARN=" + ARN)
+print("HOST=" + HOST)
