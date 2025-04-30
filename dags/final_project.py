@@ -10,11 +10,6 @@ from helpers import SqlQueries
 
 from udacity.common import sql_statements
 
-default_args = {
-    'owner': 'udacity',
-    'start_date': pendulum.now(),
-}
-
 """
 Default Args - if passed to a DAG, it will apply
  default_args to any operator as long as 
@@ -156,22 +151,41 @@ def final_project():
 
     load_songplays_table = LoadFactOperator(
         task_id='Load_songplays_fact_table',
+        redshift_conn_id="aws_redshift",
+        table="songplays",
+        sql=SqlQueries.songplay_table_insert
     )
 
     load_user_dimension_table = LoadDimensionOperator(
         task_id='Load_user_dim_table',
+        redshift_conn_id="aws_redshift",
+        table="songplays",
+        sql=SqlQueries.user_table_insert,
+        opt_truncate=True
     )
 
     load_song_dimension_table = LoadDimensionOperator(
         task_id='Load_song_dim_table',
+        redshift_conn_id="aws_redshift",
+        table="songplays",
+        sql=SqlQueries.song_table_insert,
+        opt_truncate=True
     )
 
     load_artist_dimension_table = LoadDimensionOperator(
         task_id='Load_artist_dim_table',
+        redshift_conn_id="aws_redshift",
+        table="songplays",
+        sql=SqlQueries.artist_table_insert,
+        opt_truncate=True
     )
 
     load_time_dimension_table = LoadDimensionOperator(
         task_id='Load_time_dim_table',
+        redshift_conn_id="aws_redshift",
+        table="songplays",
+        sql=SqlQueries.time_table_insert,
+        opt_truncate=True
     )
 
     run_quality_checks = DataQualityOperator(
