@@ -16,7 +16,7 @@ class SqlQueries:
             LEFT JOIN staging_songs songs
             ON events.song = songs.title
                 AND events.artist = songs.artist_name
-                AND events.length = songs.
+                AND events.length = songs.duration
             WHERE md5(events.sessionid || events.start_time) NOT IN (SELECT playid from songplays)
     """)
 
