@@ -30,8 +30,6 @@ class StageToRedshiftOperator(BaseOperator):
     SECRET_ACCESS_KEY '{}'
     REGION '{}'
     {} '{}'
-    COMPUPDATE OFF
-    STATUPDATE OFF
     """
 
     @apply_defaults
