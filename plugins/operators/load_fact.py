@@ -3,9 +3,14 @@ from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 
 """
-TODO: Summary
+Operator that can perform ETL between two tables in the same
+Redshift database using dynamic SQL. Intended to load FACT
+tables in a Data Warehouse.
 
-TODO: Args
+Args:
+    redshift_conn_id (string): Airflow Redshift connection key
+    table (string): target table for INSERT INTO statement
+    sql (string): SELECT query source source data insert
 """
 
 class LoadFactOperator(BaseOperator):
@@ -28,12 +33,12 @@ class LoadFactOperator(BaseOperator):
         self.sql = sql
 
     def execute(self, context):
+        self.log.info("Establishing Hooks...")
         redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
 
         formatted_sql = LoadFactOperator.insert_sql.format(
             self.table,
             self.sql
         )
-
         self.log.info(f"Loading {self.table} fact table...")
         redshift.run(formatted_sql)

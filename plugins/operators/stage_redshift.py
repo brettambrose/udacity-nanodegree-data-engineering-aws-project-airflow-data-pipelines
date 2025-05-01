@@ -4,7 +4,7 @@ from airflow.utils.decorators import apply_defaults
 from airflow.contrib.hooks.aws_hook import AwsHook
 
 """
-Operator that can load files of any accepted format from S3 to Redshift.
+Operator that can load files of any accepted format from S3 to Redshift
 
 Args:
     redshift_conn_id (string): Airflow Redshift connection key
@@ -15,9 +15,6 @@ Args:
     region (string): region in which bucket resides
     file_format (string): format of files being loaded (JSON, CSV, etc)
     format_spec (string): additional format specs (e.g., 'auto' for JSON)
-
-TO DO: templated field to allow it to load timestamped files from S3
-based on the execution time and backfill
 """
 
 class StageToRedshiftOperator(BaseOperator):
@@ -31,7 +28,6 @@ class StageToRedshiftOperator(BaseOperator):
     REGION '{}'
     {} '{}'
     """
-
 
     @apply_defaults
     def __init__(self,
@@ -56,14 +52,15 @@ class StageToRedshiftOperator(BaseOperator):
         self.format_spec = format_spec
 
     def execute(self, context):
+        self.log.info("Establishing Hooks...")
         aws_hook = AwsHook(self.aws_credentials_id)
         credentials = aws_hook.get_credentials()
         redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
 
-        self.log.info("Clearing data from destination Redshift table")
+        self.log.info("Clearing staging table...")
         redshift.run("DELETE FROM {}".format(self.table))
 
-        self.log.info("Copy data from S3 to Redshift")
+        self.log.info("Staging files from S3...")
         rendered_key = self.s3_key.format(**context)
         s3_path = "s3://{}/{}".format(self.s3_bucket, rendered_key)
         formatted_sql = StageToRedshiftOperator.copy_sql.format(
