@@ -46,7 +46,7 @@ def final_project():
         redshift_conn_id="aws_redshift",
         aws_credentials_id="aws_credentials",
         s3_bucket="udacity-dend",
-        s3_key="song_data/A/A",
+        s3_key="song_data",
         region="us-west-2",
         file_format="JSON",
         format_spec="auto"
