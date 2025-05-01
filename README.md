@@ -63,11 +63,11 @@ Connection Type = "Amazon Web Services"
     5. Output the Cluster endpoint and IAM Role ARN for use in th [Add HOST and ARN Variables to dwh.cfg](#add-host-and-arn-variables-to-dwhcfg) and [Add Redshift Connection to Airflow](#add-redshift-connection-to-airflow) steps
 3. run the [create_tables.py](/deploy/create_tables.py) script, which will create all tables in the DWH using the SQL statements in [ddl.py](/deploy/ddl.py)
 
-### Add HOST and ARN Variables to dwh.cfg
+### Add HOST variable to dwh.cfg
 
-Add to HOST and ARN variable to [dwh.cfg](/dwh.cfg)
+Add to HOST variable to [dwh.cfg](/dwh.cfg)
 
-![dwh.cfg with Host and Arn](/assets/2025-04-29%2000_00_30-dwh.cfg%20-%20udacity-nd-data-engineering-aws-project-airflow-data-pipelines%20-%20Visua.png)
+![dwh.cfg with Host](/assets/2025-04-30%2021_00_09-dwh.cfg%20-%20HOST%20variable.png)
 
 ### Add Redshift Connection to Airflow
 
@@ -79,4 +79,8 @@ Use the CLUSTER variables in [dwh.cfg](/dwh.cfg) to fill out the rest
 
 ![Airflow with HOST](/assets/2025-04-29%2000_05_33-Add%20Redshift%20Connection%20-%20Airflow.png)
 
-## NEXT TO DO
+### Run the DAG in Airflow
+
+Now all the connections are set up, run the [sparkify_etl](/dags/sparkify_etl.py) DAG in airflow.  The DAG should look like this:
+
+![Sparkify ETL DAG](/assets/2025-04-30%2021_04_07-Airflow%20DAG.png)
