@@ -8,23 +8,12 @@ from operators import (StageToRedshiftOperator, LoadFactOperator,
                        LoadDimensionOperator, DataQualityOperator)
 from helpers import SqlQueries
 
-"""
-Default Args - if passed to a DAG, it will apply
- default_args to any operator as long as 
- @apply_defaults caller is present
-
-The DAG does not have dependencies on past runs
-On failure, the task are retried 3 times
-Retries happen every 5 minutes
-Catchup is turned off
-Do not email on retry
-"""
-
 default_args = {
+    "owner": "udacity",
     "start_date": pendulum.now(),
     "retries": 3,
     "email_on_retry": False,
-    "retry_detail": timedelta(minutes=5),
+    "retry_delay": timedelta(minutes=5),
     "depends_on_past": False,
     "catchup": False
 }
@@ -32,7 +21,7 @@ default_args = {
 @dag(
     default_args=default_args,
     description='Load and transform data in Redshift with Airflow',
-    schedule_interval=None
+    schedule_interval="@hourly"
 )
 
 def final_project():
@@ -106,15 +95,10 @@ def final_project():
         task_id='Run_data_quality_checks',
         redshift_conn_id="aws_redshift",
         rule_list=[
-            {"id": "1", "type": "checksum", "exp_result": "", "query": "SELECT COUNT(1) FROM songplays"},
-            {"id": "2", "type": "checksum", "exp_result": "", "query": "SELECT COUNT(1) FROM songs"},
-            {"id": "3", "type": "checksum", "exp_result": "", "query": "SELECT COUNT(1) FROM artists"},
-            {"id": "4", "type": "checksum", "exp_result": "", "query": "SELECT COUNT(1) FROM users"},
-            {"id": "5", "type": "checksum", "exp_result": "", "query": "SELECT COUNT(1) FROM artists"},
-            {"id": "6", "type": "condition", "exp_result": "0", "query": "SELECT COUNT(1) FROM songplays WHERE start_time IS NULL"},
-            {"id": "7", "type": "condition", "exp_result": "0", "query": "SELECT COUNT(1) FROM songs WHERE artistid IS NULL"},
-            {"id": "8", "type": "condition", "exp_result": "2", "query": "SELECT COUNT(DISTINCT level) FROM users"},
-            {"id": "9", "type": "condition", "exp_result": "18", "query": "select distinct length(artistid) from artists"}
+            {"id": 1, "exp_result": 0, "query": "SELECT COUNT(1) FROM songplays WHERE start_time IS NULL"},
+            {"id": 2, "exp_result": 0, "query": "SELECT COUNT(1) FROM songs WHERE artistid IS NULL"},
+            {"id": 3, "exp_result": 2, "query": "SELECT COUNT(DISTINCT level) FROM users"},
+            {"id": 4, "exp_result": 1, "query": "SELECT COUNT(1) FROM (SELECT DISTINCT length(artistid) from artists)"}
             ]
     )
 

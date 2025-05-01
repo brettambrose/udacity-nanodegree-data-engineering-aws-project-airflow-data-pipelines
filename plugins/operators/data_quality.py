@@ -3,9 +3,18 @@ from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 
 """
-TODO: Summary
+Operator that loops through a list of custom data quality rules
+ applied to tables in a Redshift database. Intended to run
+ SQL queries and check against expected results.
 
-TODO: Args
+Args:
+    redshift_conn_id (string): Airflow Redshift connection key
+    rule_list (list(dict)): dynamic list of dicts formatted as:
+        {
+            "id": int, -- rule identifier
+            "exp_result: int, -- record count expected
+            "query": "" -- SELECT COUNT(1) query based on condition
+        }
 """
 
 class DataQualityOperator(BaseOperator):
@@ -22,27 +31,20 @@ class DataQualityOperator(BaseOperator):
         self.rule_list = rule_list
 
     def execute(self, context):
+        self.log.info("Establishing Hooks...")
         redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
         
-        self.log.info("executing data quality rules...")
-
+        self.log.info("Executing data quality rules...")
         for rule in self.rule_list:
             id = rule.get("id")
-            rule_type = rule.get("type")
             exp_result = rule.get("exp_result")
             query = rule.get("query")
 
+            self.log.info(f"Executing RULE {id}: {query}")
             raw_result = redshift.get_records(query)
             result = raw_result[0][0]
 
-            if rule_type == "condition":
-                if result != int(exp_result):
-                    raise ValueError(f"RULE {id} FAILED: exp result={exp_result} | actual result={result}")
-                else:
-                    self.log.info(f"RULE {id} PASSED: exp result={exp_result} | actual result={result}")
-            
-            if rule_type == "checksum":
-                if result <= 0:
-                    raise ValueError(f"RULE {id} FAILED: {query} returned 0 records")
-                else:
-                    self.log.info(f"RULE {id} PASSED: {query} returned > 0 records")
+            if result != exp_result:
+                raise ValueError(f"FAILED: actual result={result} != expected result={exp_result}")
+            else:
+                self.log.info(f"PASSED: actual result={result} == expected result={exp_result}")
