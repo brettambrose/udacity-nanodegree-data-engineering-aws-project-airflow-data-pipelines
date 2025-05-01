@@ -1,4 +1,20 @@
 # Project: Data Pipelines with Airflow
+
+# Contents
+1. [Project Summary](#project-summary)
+2. [Project Prerequisites](#project-prerequisites)
+    1. [AWS Account with IAM User](#aws-account-with-iam-user)
+    2. [Docker Desktop](#docker-desktop)
+3. [Project Datasets](#project-datasets)
+4. [Initiating the Airflow Web Server](#initiating-the-airflow-web-server)
+    1. [Add AWS Credentials to Airflow](#add-aws-credentials-to-airflow)
+5. [Deploying AWS Infrastructure with IaC](#deploying-aws-infrastructure-with-iac)
+    1. [Add HOST variable to dwh.cfg](#add-host-variable-to-dwhcfg)
+    2. [Add Redshift Connection to Airflow](#add-redshift-connection-to-airflow)
+6. [Running the DAG in Airflow](#running-the-dag-in-airflow)
+7. [Decommissioning Docker and Redshift](#decommissioning-docker-and-redshift)
+
+## Project Summary
 A music streaming company, Sparkify, has decided that it is time to introduce more automation and monitoring to their data warehouse ETL pipelines and come to the conclusion that the best tool to achieve this is Apache Airflow.
 
 They have decided to bring you into the project and expect you to create high grade data pipelines that are dynamic and built from reusable tasks, can be monitored, and allow easy backfills. They have also noted that the data quality plays a big part when analyses are executed on top the data warehouse and want to run tests against their datasets after the ETL steps have been executed to catch any discrepancies in the datasets.
@@ -9,6 +25,7 @@ The source data resides in S3 and needs to be processed in Sparkify's data wareh
 
 ## Project Prerequisites
 
+### AWS Account with IAM User
 An AWS IAM User with the following permissions
 * AdminstratorAccess
 * AmazonRedshiftFullAccess
@@ -18,15 +35,33 @@ Populate the [dwh.cfg](/dwh.cfg) file with the IAM User's KEY and SECRET
 
 ![AWS Keys and Secret in dwh.cfg](/assets/2025-04-29%2000_00_30-dwh.cfg%20-%20secrets%20and%20keys.png)
 
+### Docker Desktop and Apache Airflow
+
+This project uses Apache Airflow 2.5.1.  For more documentation on Apache Airflow go to https://airflow.apache.org/docs/apache-airflow/2.5.1/
+
+1. Download docker from https://www.docker.com/products/docker-desktop/
+2. The [docker-compose.yml](/docker-compose.yml) file is in this repo, but can be downloaded if needed here:https://airflow.apache.org/docs/apache-airflow/2.5.1/docker-compose.yaml
+3. Ensure a **.env** file is in a local copy of this repo, populated with the following:
+
+<pre>
+AIRFLOW_IMAGE_NAME=apache/airflow:2.5.1
+AIRFLOW_UID=50000
+</pre>
+
 ## Project Datasets
 
 The following source datasets are used:
 
-1. s3://udacity-dend/log_data
-    - **NOTE** include also the JSON metadata for this: s3://udacity-dend/log_json_path.json 
-2. s3://udacity-dend/song-data
+> s3://udacity-dend/log-data
+>
+>s3://udacity-dend/song_data
+
+**NOTE** a JSON path metadata file needs to be used for /log-data
+
+> s3://udacity-dend/log_json_path.json 
 
 ## Initiating the Airflow Web Server
+
 Ensure [Docker Desktop](https://www.docker.com/products/docker-desktop/) is installed before proceeding.
 
 To bring up the entire app stack up, we use [docker-compose](https://docs.docker.com/engine/reference/commandline/compose_up/) as shown below
@@ -40,7 +75,7 @@ Create admin credentials for the Airflow Web Server run the following command
 docker-compose run airflow-worker airflow users create --role Admin --username admin --email admin --firstname admin --lastname admin --password admin
 ```
 
-Then go to http://localhost:8080/ - this is default port for Airflow on a local machine
+Then go to http://localhost:8080/ - this is default port for Airflow on a local machine and log in using the credentials created above
 
 ### Add AWS Credentials to Airflow
 
@@ -79,8 +114,32 @@ Use the CLUSTER variables in [dwh.cfg](/dwh.cfg) to fill out the rest
 
 ![Airflow with HOST](/assets/2025-04-29%2000_05_33-Add%20Redshift%20Connection%20-%20Airflow.png)
 
-### Run the DAG in Airflow
+## Running the DAG in Airflow
 
-Now all the connections are set up, run the [sparkify_etl](/dags/sparkify_etl.py) DAG in airflow.  The DAG should look like this:
+Now all the connections are set up, run the [sparkify_etl](/dags/sparkify_etl.py) DAG in airflow. 
 
-![Sparkify ETL DAG](/assets/2025-04-30%2021_04_07-Airflow%20DAG.png)
+Go to in https://localhost:8080/ --> DAGS --> scroll down to sparkify_etl DAG
+
+![Airflow DAG page](/assets/2025-05-01%2007_43_10-DAGs%20-%20Airflow.png)
+
+Run the DAG by selecting the RUN botton at the top right.  Review the DAG by going to "Graph" to track the execution visually.
+
+![Sparkify ETL DAG](/assets/2025-05-01%2007_47_18-sparkify_etl%20-%20Sparkify%20ETL%20DAG%20Graph.png)
+
+Verify DAG Success by hovering over and clicking on tasks...
+
+![DAG Success](/assets/2025-05-01%2008_13_29-sparkify_etl%20-%20DAG%20Success.png)
+
+... and reviewing task logs
+![Task Log](/assets/2025-05-01%2008_15_12-sparkify_etl%20-%20Task%20Logs.png)
+
+## Decommissioning Docker and Redshift
+
+Once the ETL DAG runs successfully, execute the following terminal command to shutdown the docker container:
+```bash
+docker-compose down
+```
+
+Then run the [infra_decomm.py](/deploy/infra_decomm.py) scrip in the [deploy](/deploy/) folder to:
+1. Delete the Redshift Cluster
+2. Delete the IAM Role
