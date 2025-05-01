@@ -4,7 +4,7 @@
 1. [Project Summary](#project-summary)
 2. [Project Prerequisites](#project-prerequisites)
     1. [AWS Account with IAM User](#aws-account-with-iam-user)
-    2. [Docker Desktop](#docker-desktop)
+    2. [Docker Desktop and Apache Airflow](#docker-desktop-and-apache-airflow)
 3. [Project Datasets](#project-datasets)
 4. [Initiating the Airflow Web Server](#initiating-the-airflow-web-server)
     1. [Add AWS Credentials to Airflow](#add-aws-credentials-to-airflow)
