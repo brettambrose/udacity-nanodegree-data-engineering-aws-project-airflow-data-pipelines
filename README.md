@@ -2,15 +2,13 @@
 
 # Contents
 1. [Project Summary](#project-summary)
-2. [Project Prerequisites](#project-prerequisites)
-    1. [AWS Account with IAM User](#aws-account-with-iam-user)
-    2. [Docker Desktop and Apache Airflow](#docker-desktop-and-apache-airflow)
+2. [AWS Prerequisites](#aws-prerequsites)
+    1. [Docker Desktop and Apache Airflow](#docker-desktop-and-apache-airflow)
 3. [Project Datasets](#project-datasets)
 4. [Initiating the Airflow Web Server](#initiating-the-airflow-web-server)
     1. [Add AWS Credentials to Airflow](#add-aws-credentials-to-airflow)
 5. [Deploying AWS Infrastructure with IaC](#deploying-aws-infrastructure-with-iac)
-    1. [Add HOST variable to dwh.cfg](#add-host-variable-to-dwhcfg)
-    2. [Add Redshift Connection to Airflow](#add-redshift-connection-to-airflow)
+    1. [Add Redshift Connection to Airflow](#add-redshift-connection-to-airflow)
 6. [Running the DAG in Airflow](#running-the-dag-in-airflow)
 7. [Decommissioning Docker and Redshift](#decommissioning-docker-and-redshift)
 
@@ -23,17 +21,13 @@ The source data resides in S3 and needs to be processed in Sparkify's data wareh
 
 ![Example DAG](/assets/2025-04-28%2020_31_38-Data%20Pipelines%20-%20Project%20Overview.png)
 
-## Project Prerequisites
-
-### AWS Account with IAM User
-An AWS IAM User with the following permissions
-* AdminstratorAccess
-* AmazonRedshiftFullAccess
-* AmazonS3FullAccess
-
-Populate the [dwh.cfg](/dwh.cfg) file with the IAM User's KEY and SECRET
-
-![AWS Keys and Secret in dwh.cfg](/assets/2025-04-29%2000_00_30-dwh.cfg%20-%20secrets%20and%20keys.png)
+## AWS PREREQUSITES
+1. An AWS Account with an IAM User with the following permissions
+    - AdminstratorAccess
+    - AmazonRedshiftFullAccess
+    - AmazonS3FullAccess
+2. Local AWS CLI (download here: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+    - Local .aws file will need to be configured (see: https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-files.html#cli-configure-files-methods)
 
 ### Docker Desktop and Apache Airflow
 
@@ -93,24 +87,19 @@ Connection Type = "Amazon Web Services"
 2. run the [infra_deploy.py](/deploy/infra_deploy.py) script, which will use boto3 to...
     1. Create the IAM Role for Redshift service
     2. Attach S3 full access policy to S3 role
-    3. Create the Redshift cluster
-    4. Configure VPC ingress rules
-    5. Output the Cluster endpoint and IAM Role ARN for use in th [Add HOST and ARN Variables to dwh.cfg](#add-host-and-arn-variables-to-dwhcfg) and [Add Redshift Connection to Airflow](#add-redshift-connection-to-airflow) steps
-3. run the [create_tables.py](/deploy/create_tables.py) script, which will create all tables in the DWH using the SQL statements in [ddl.py](/deploy/ddl.py)
-
-### Add HOST variable to dwh.cfg
-
-Add to HOST variable to [dwh.cfg](/dwh.cfg)
-
-![dwh.cfg with Host](/assets/2025-04-30%2021_00_09-dwh.cfg%20-%20HOST%20variable.png)
+    3. Populate local ~/.aws/config with IAM Role ARN
+    4. Create the Redshift cluster
+    5. Configure ingress rules on default AWS Security Group for Airflow access
+    6. Populate [dwh.cfg](/dwh.cfg) **DB_HOST** variable with the Redshift cluster endpoint
+3. Run the [create_tables.py](/deploy/create_tables.py) script, which will create all tables in the DWH using the SQL statements in [ddl.py](/deploy/ddl.py)
 
 ### Add Redshift Connection to Airflow
 
-With the HOST known, go to Airflow UI --> Admin --> Connections --> Add New Record
+With the **DB_HOST** variable populated in the [dwh.cfg](/dwh.cfg) file during the [Deploying AWS Infrastructure](#deploying-aws-infrastructure-with-iac) step (if not already present in the file), go to Airflow UI --> Admin --> Connections --> Add New Record
 
 Connection Type = "Amazon Redshift"
 
-Use the CLUSTER variables in [dwh.cfg](/dwh.cfg) to fill out the rest
+Use the **DB** variables in [dwh.cfg](/dwh.cfg) to fill out the rest
 
 ![Airflow with HOST](/assets/2025-04-29%2000_05_33-Add%20Redshift%20Connection%20-%20Airflow.png)
 
