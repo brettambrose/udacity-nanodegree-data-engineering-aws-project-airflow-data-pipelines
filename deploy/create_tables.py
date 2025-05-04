@@ -38,6 +38,7 @@ def create_tables(cur, conn):
 
 
 def main():
+    
     config = configparser.ConfigParser()
     config.read('dwh.cfg')
 
