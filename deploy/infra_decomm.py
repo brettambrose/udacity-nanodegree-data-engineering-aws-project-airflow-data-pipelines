@@ -59,7 +59,7 @@ print("Detatching IAM Role policies...")
 try:
     iam_client.detach_role_policy(
         RoleName=IAM_ROLE_NAME,
-        PolicyArn="arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+        PolicyArn="arn:aws:iam::aws:policy/AmazonS3FullAccess"
         )
 
 except Exception as e:
